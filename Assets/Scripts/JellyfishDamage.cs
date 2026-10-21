@@ -1,9 +1,13 @@
+
 using UnityEngine;
 
 public class JellyfishDamage : MonoBehaviour
 {
     public float damageAmount = 10f;
     public float damageCooldown = 1.5f;
+
+    [Header("Electric Hit Sound")]
+    public AudioSource electricSound;
 
     private float nextDamageTime = 0f;
 
@@ -17,8 +21,13 @@ public class JellyfishDamage : MonoBehaviour
 
         nextDamageTime = Time.time + damageCooldown;
 
-        // البحث الآمن عن نظام الأكسجين في المشهد
-        OxygenSystem oxygenSystem = FindFirstObjectByType<OxygenSystem>();
+        if (electricSound != null)
+        {
+            electricSound.Play();
+        }
+
+        OxygenSystem oxygenSystem =
+            FindFirstObjectByType<OxygenSystem>();
 
         if (oxygenSystem != null)
         {
@@ -29,7 +38,9 @@ public class JellyfishDamage : MonoBehaviour
             Debug.LogError("OxygenSystem not found in the scene!");
         }
 
-        PlayerMovement player = other.GetComponent<PlayerMovement>();
+        PlayerMovement player =
+            other.GetComponent<PlayerMovement>();
+
         if (player != null)
         {
             player.TakeHit(transform.position);

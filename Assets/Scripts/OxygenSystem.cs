@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using TMPro;
 
@@ -12,6 +13,10 @@ public class OxygenSystem : MonoBehaviour
 
     public TMP_Text oxygenText;
     public GameObject gameOverPanel;
+
+    // بانيل خاص بنفاد الأكسجين، اختياري
+    public GameObject oxygenGameOverPanel;
+
     public GameObject[] hudElements;
 
     private bool gameOver = false;
@@ -22,6 +27,9 @@ public class OxygenSystem : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
+
+        if (oxygenGameOverPanel != null)
+            oxygenGameOverPanel.SetActive(false);
 
         SetHUDVisible(true);
         UpdateOxygenText();
@@ -46,7 +54,7 @@ public class OxygenSystem : MonoBehaviour
             else
             {
                 UpdateOxygenText();
-                GameOver();
+                OxygenGameOver();
                 return;
             }
         }
@@ -70,7 +78,8 @@ public class OxygenSystem : MonoBehaviour
         oxygen = Mathf.Max(0f, oxygen - amount);
         UpdateOxygenText();
 
-        Debug.Log("Damage applied: " + amount + " | Remaining: " + oxygen);
+        Debug.Log("Damage applied: " + amount +
+                  " | Remaining: " + oxygen);
 
         if (oxygen <= 0f)
         {
@@ -82,7 +91,7 @@ public class OxygenSystem : MonoBehaviour
             }
             else
             {
-                GameOver();
+                OxygenGameOver();
             }
         }
     }
@@ -100,6 +109,7 @@ public class OxygenSystem : MonoBehaviour
         GameOver();
     }
 
+    // Game Over القديم: نحافظ عليه لباقي الحالات
     public void GameOver()
     {
         if (gameOver)
@@ -110,6 +120,28 @@ public class OxygenSystem : MonoBehaviour
 
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
+
+        Time.timeScale = 0f;
+    }
+
+    // Game Over خاص بنفاد الأكسجين
+    private void OxygenGameOver()
+    {
+        if (gameOver)
+            return;
+
+        gameOver = true;
+        SetHUDVisible(false);
+
+        if (oxygenGameOverPanel != null)
+        {
+            oxygenGameOverPanel.SetActive(true);
+        }
+        else if (gameOverPanel != null)
+        {
+            // رجوع آمن للبانيل القديم إذا لم نربط الجديد
+            gameOverPanel.SetActive(true);
+        }
 
         Time.timeScale = 0f;
     }

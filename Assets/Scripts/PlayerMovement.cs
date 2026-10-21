@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Hit Effect")]
     public float knockbackDuration = 0.25f;
     public float shakeAmount = 0.08f;
+    public float knockbackDistance = 0.4f;
 
     private Rigidbody2D rb;
     private Vector2 movement;
@@ -32,8 +33,6 @@ public class PlayerMovement : MonoBehaviour
     private float maxX;
     private float minY;
     private float maxY;
-
-    private Vector3 originalLocalPosition;
 
     void Start()
     {
@@ -215,43 +214,55 @@ public class PlayerMovement : MonoBehaviour
 
     public void TakeHit(Vector2 hazardPosition)
     {
-        if (isKnockedBack)
+        if (isKnockedBack || rb == null)
             return;
 
         if (knockbackCoroutine != null)
             StopCoroutine(knockbackCoroutine);
 
         knockbackCoroutine =
-            StartCoroutine(KnockbackEffect());
+            StartCoroutine(KnockbackEffect(hazardPosition));
     }
 
-    IEnumerator KnockbackEffect()
+    IEnumerator KnockbackEffect(Vector2 hazardPosition)
     {
         isKnockedBack = true;
 
-        // Save the diver's exact position
-        Vector3 originalPosition = transform.localPosition;
+        Vector2 startPosition = rb.position;
+        Vector2 direction = startPosition - hazardPosition;
+
+        // Determine the direction away from the rock
+        if (direction.sqrMagnitude < 0.001f)
+            direction = -movement;
+
+        if (direction.sqrMagnitude < 0.001f)
+            direction = Vector2.down;
+
+        direction.Normalize();
+
+        Vector2 targetPosition = ClampPosition(
+            startPosition + direction * knockbackDistance
+        );
 
         float elapsed = 0f;
 
         while (elapsed < knockbackDuration)
         {
-            float shakeX = Random.Range(-shakeAmount, shakeAmount);
-            float shakeY = Random.Range(-shakeAmount, shakeAmount);
+            float t = Mathf.Clamp01(
+                elapsed / knockbackDuration
+            );
 
-            // Shake only; no knockback force
-            transform.localPosition = originalPosition +
-                new Vector3(shakeX, shakeY, 0f);
+            float smoothT = t * t * (3f - 2f * t);
 
-            elapsed += Time.deltaTime;
-            yield return null;
+            rb.MovePosition(
+                Vector2.Lerp(startPosition, targetPosition, smoothT)
+            );
+
+            elapsed += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
         }
 
-        // Return to the exact original position
-        transform.localPosition = originalPosition;
-
-        if (rb != null)
-            rb.linearVelocity = Vector2.zero;
+        rb.MovePosition(targetPosition);
 
         movement = Vector2.zero;
         isKnockedBack = false;

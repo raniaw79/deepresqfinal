@@ -21,7 +21,11 @@ public class DolphinRescue : MonoBehaviour
     [Header("Score Popup Position")]
     public float popupHeightOffset = 0.2f;
 
+    [Header("Animal Rescue Sound")]
+    public AudioSource animalRescueAudioSource;
+
     private bool isRescued = false;
+    private bool rescueRegistered = false;
 
     private Vector3 startPosition;
     private Quaternion startRotation;
@@ -78,42 +82,70 @@ public class DolphinRescue : MonoBehaviour
         if (isRescued)
             return;
 
-        if (other.CompareTag("Player"))
+        if (!other.CompareTag("Player"))
+            return;
+
+        isRescued = true;
+        swimTime = 0f;
+
+        // تشغيل صوت الإنقاذ
+        if (animalRescueAudioSource != null &&
+            animalRescueAudioSource.clip != null)
         {
-            isRescued = true;
-            swimTime = 0f;
+            animalRescueAudioSource.PlayOneShot(
+                animalRescueAudioSource.clip
+            );
+        }
 
-            // زيادة السكور بمقدار 20
-            if (ScoreManager.Instance != null)
+        // إضافة النقاط
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.AddScore(scorePoints);
+        }
+
+        // تسجيل إنقاذ الدلفين مرة واحدة
+        if (!rescueRegistered)
+        {
+            Level3WinManager winManager =
+                FindObjectOfType<Level3WinManager>();
+
+            if (winManager != null)
             {
-                ScoreManager.Instance.AddScore(scorePoints);
+                winManager.RegisterAnimalRescue();
+                rescueRegistered = true;
+            }
+            else
+            {
+                Debug.LogWarning(
+                    "Level3WinManager not found!"
+                );
+            }
+        }
+
+        // إظهار +20 فوق رأس الدلفين
+        if (scorePopup != null)
+        {
+            SpriteRenderer dolphinSprite =
+                GetComponentInChildren<SpriteRenderer>();
+
+            Vector3 popupPosition;
+
+            if (dolphinSprite != null)
+            {
+                popupPosition = new Vector3(
+                    dolphinSprite.bounds.center.x,
+                    dolphinSprite.bounds.max.y
+                        + popupHeightOffset,
+                    transform.position.z
+                );
+            }
+            else
+            {
+                popupPosition = transform.position
+                    + Vector3.up * 0.8f;
             }
 
-            // إظهار +20 فوق رأس الدلفين
-            if (scorePopup != null)
-            {
-                SpriteRenderer dolphinSprite =
-                    GetComponentInChildren<SpriteRenderer>();
-
-                Vector3 popupPosition;
-
-                if (dolphinSprite != null)
-                {
-                    popupPosition = new Vector3(
-                        dolphinSprite.bounds.center.x,
-                        dolphinSprite.bounds.max.y
-                            + popupHeightOffset,
-                        transform.position.z
-                    );
-                }
-                else
-                {
-                    popupPosition = transform.position
-                        + Vector3.up * 0.8f;
-                }
-
-                scorePopup.ShowAt(popupPosition);
-            }
+            scorePopup.ShowAt(popupPosition);
         }
     }
 }

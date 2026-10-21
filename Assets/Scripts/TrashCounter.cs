@@ -1,3 +1,4 @@
+
 using UnityEngine;
 using TMPro;
 
@@ -5,10 +6,15 @@ public class TrashCounter : MonoBehaviour
 {
     public static TrashCounter Instance;
 
+    [Header("UI")]
     public TMP_Text counterText;
     public GameObject levelCompletePanel;
 
+    [Header("Trash Target")]
     public int trashTarget = 50;
+
+    [Header("Level Complete Sound")]
+    public AudioSource levelCompleteSound;
 
     private int trashCollected = 0;
     private bool levelCompleted = false;
@@ -18,7 +24,6 @@ public class TrashCounter : MonoBehaviour
         Instance = this;
 
         // البحث عن LevelCompletePanel تلقائيًا
-        // حتى لو كان غير مفعّل
         if (levelCompletePanel == null)
         {
             Canvas canvas = FindFirstObjectByType<Canvas>();
@@ -40,18 +45,31 @@ public class TrashCounter : MonoBehaviour
 
     private void Start()
     {
+        Time.timeScale = 1f;
+
         UpdateCounter();
 
-        // إذا كان الـPanel موجود، نخفيه في بداية اللعبة
         if (levelCompletePanel != null)
         {
             levelCompletePanel.SetActive(false);
+        }
+
+        if (levelCompleteSound == null)
+        {
+            Debug.LogWarning(
+                "TrashCounter: AudioSource is not assigned!"
+            );
+        }
+        else if (levelCompleteSound.clip == null)
+        {
+            Debug.LogWarning(
+                "TrashCounter: AudioClip is missing!"
+            );
         }
     }
 
     public void AddTrash()
     {
-        // إذا اكتمل المستوى، لا نزيد العداد
         if (levelCompleted)
         {
             return;
@@ -72,14 +90,16 @@ public class TrashCounter : MonoBehaviour
 
         // زيادة سرعة الزبالة
         FallingTrash[] allTrash =
-            FindObjectsByType<FallingTrash>(FindObjectsSortMode.None);
+            FindObjectsByType<FallingTrash>(
+                FindObjectsSortMode.None
+            );
 
         foreach (FallingTrash trash in allTrash)
         {
             trash.IncreaseSpeed(0.1f);
         }
 
-        // عند الوصول إلى 50 زبالة
+        // إنهاء المستوى عند جمع الهدف
         if (trashCollected >= trashTarget)
         {
             levelCompleted = true;
@@ -89,16 +109,44 @@ public class TrashCounter : MonoBehaviour
 
     private void ShowLevelComplete()
     {
-        // إذا كان الـPanel موجود
+        // إظهار لوحة إكمال المستوى
         if (levelCompletePanel != null)
         {
             levelCompletePanel.SetActive(true);
-
-            // إيقاف اللعبة
-            Time.timeScale = 0f;
-
-            Debug.Log("LEVEL 2 POPUP SHOWN!");
         }
+        else
+        {
+            Debug.LogError(
+                "TrashCounter: LevelCompletePanel not found!"
+            );
+        }
+
+        // تشغيل صوت النجاح مرة واحدة
+        if (levelCompleteSound != null &&
+            levelCompleteSound.clip != null)
+        {
+            levelCompleteSound.Stop();
+
+            levelCompleteSound.PlayOneShot(
+                levelCompleteSound.clip
+            );
+
+            Debug.Log(
+                "Level 2 success sound requested: " +
+                levelCompleteSound.clip.name
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "TrashCounter: AudioSource or AudioClip is missing!"
+            );
+        }
+
+        // إيقاف حركة اللعبة
+        Time.timeScale = 0f;
+
+        Debug.Log("LEVEL 2 COMPLETED!");
     }
 
     private void UpdateCounter()
@@ -109,7 +157,6 @@ public class TrashCounter : MonoBehaviour
         }
     }
 
-    // البحث عن عنصر داخل الـCanvas حتى لو كان Inactive
     private Transform FindChildRecursive(
         Transform parent,
         string childName)

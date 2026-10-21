@@ -1,8 +1,12 @@
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class HomeButton : MonoBehaviour
 {
+    public AudioSource buttonSound;
+
     public void GoToHome()
     {
         Time.timeScale = 1f;
@@ -11,7 +15,18 @@ public class HomeButton : MonoBehaviour
 
     public void PlayGame()
     {
+        StartCoroutine(PlaySoundAndLoadStory());
+    }
+
+    private IEnumerator PlaySoundAndLoadStory()
+    {
+        if (buttonSound != null && buttonSound.clip != null)
+        {
+            buttonSound.Play();
+            yield return new WaitForSecondsRealtime(buttonSound.clip.length);
+        }
+
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Level1");
+        SceneManager.LoadScene("Story");
     }
 }

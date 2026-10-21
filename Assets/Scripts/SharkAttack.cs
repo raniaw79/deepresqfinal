@@ -5,6 +5,9 @@ public class SharkAttack : MonoBehaviour
 {
     private bool hasAttacked = false;
 
+    [Header("Shark Attack Sound")]
+    public AudioSource attackAudio;
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         TryAttack(other.gameObject);
@@ -29,6 +32,12 @@ public class SharkAttack : MonoBehaviour
         if (oxygenSystem != null)
         {
             hasAttacked = true;
+
+            if (attackAudio != null)
+            {
+                attackAudio.Play();
+            }
+
             oxygenSystem.SharkAttack();
         }
         else

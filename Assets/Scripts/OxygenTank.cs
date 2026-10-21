@@ -9,6 +9,9 @@ public class OxygenTank : MonoBehaviour
     public float rotationAmount = 5f;
     public float rotationSpeed = 1f;
 
+    [Header("Pickup Sound")]
+    public AudioClip pickupSound;
+
     private Vector3 startPosition;
     private Quaternion startRotation;
     private float randomOffset;
@@ -17,7 +20,6 @@ public class OxygenTank : MonoBehaviour
     {
         startPosition = transform.position;
         startRotation = transform.rotation;
-
         randomOffset = Random.Range(0f, 10f);
     }
 
@@ -27,30 +29,39 @@ public class OxygenTank : MonoBehaviour
             Mathf.Sin((Time.time + randomOffset) * floatSpeed)
             * floatHeight;
 
-        transform.position = startPosition
-            + Vector3.up * verticalMovement;
+        transform.position =
+            startPosition + Vector3.up * verticalMovement;
 
         float rotation =
             Mathf.Sin((Time.time + randomOffset) * rotationSpeed)
             * rotationAmount;
 
-        transform.rotation = startRotation
-            * Quaternion.Euler(0f, 0f, rotation);
+        transform.rotation =
+            startRotation * Quaternion.Euler(0f, 0f, rotation);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
-        {
-            OxygenSystem oxygenSystem =
-                FindFirstObjectByType<OxygenSystem>();
+        if (!other.CompareTag("Player"))
+            return;
 
-            if (oxygenSystem != null &&
-                oxygenSystem.oxygenTanks < oxygenSystem.maxOxygenTanks)
+        OxygenSystem oxygenSystem =
+            FindFirstObjectByType<OxygenSystem>();
+
+        if (oxygenSystem != null &&
+            oxygenSystem.oxygenTanks < oxygenSystem.maxOxygenTanks)
+        {
+            oxygenSystem.AddOxygenTank();
+
+            if (pickupSound != null)
             {
-                oxygenSystem.AddOxygenTank();
-                Destroy(gameObject);
+                AudioSource.PlayClipAtPoint(
+                    pickupSound,
+                    transform.position
+                );
             }
+
+            Destroy(gameObject);
         }
     }
 }
