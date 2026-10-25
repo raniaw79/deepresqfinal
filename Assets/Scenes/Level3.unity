@@ -16939,7 +16939,6 @@ GameObject:
   - component: {fileID: 1973718975}
   - component: {fileID: 1973718974}
   - component: {fileID: 1973718976}
-  - component: {fileID: 1973718977}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -17115,27 +17114,6 @@ MonoBehaviour:
   knockbackDuration: 0.25
   shakeAmount: 0.08
   knockbackDistance: 0.4
---- !u!114 &1973718977
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1973718971}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 457d2df161a44814a8e0958fa41370ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OxygenSystem
-  maxOxygen: 100
-  oxygen: 100
-  oxygenDrainRate: 1
-  oxygenTanks: 0
-  maxOxygenTanks: 4
-  oxygenText: {fileID: 0}
-  gameOverPanel: {fileID: 0}
-  oxygenGameOverPanel: {fileID: 0}
-  hudElements: []
 --- !u!1 &2018322611
 GameObject:
   m_ObjectHideFlags: 0
