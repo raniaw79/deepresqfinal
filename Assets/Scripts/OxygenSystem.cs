@@ -13,6 +13,7 @@ public class OxygenSystem : MonoBehaviour
 
     public TMP_Text oxygenText;
     public GameObject gameOverPanel;
+    public AudioSource gameOverAudio;
 
     // بانيل خاص بنفاد الأكسجين، اختياري
     public GameObject oxygenGameOverPanel;
@@ -40,7 +41,6 @@ public class OxygenSystem : MonoBehaviour
         if (gameOver)
             return;
 
-        // الخصم الطبيعي المستمر للأكسجين
         oxygen -= oxygenDrainRate * Time.deltaTime;
         oxygen = Mathf.Clamp(oxygen, 0f, maxOxygen);
 
@@ -65,9 +65,7 @@ public class OxygenSystem : MonoBehaviour
     private void UpdateOxygenText()
     {
         if (oxygenText != null)
-        {
             oxygenText.text = Mathf.RoundToInt(oxygen).ToString();
-        }
     }
 
     public void DamageOxygen(float amount)
@@ -99,9 +97,7 @@ public class OxygenSystem : MonoBehaviour
     public void AddOxygenTank()
     {
         if (!gameOver && oxygenTanks < maxOxygenTanks)
-        {
             oxygenTanks++;
-        }
     }
 
     public void SharkAttack()
@@ -109,7 +105,7 @@ public class OxygenSystem : MonoBehaviour
         GameOver();
     }
 
-    // Game Over القديم: نحافظ عليه لباقي الحالات
+    // Game Over العادي
     public void GameOver()
     {
         if (gameOver)
@@ -121,10 +117,11 @@ public class OxygenSystem : MonoBehaviour
         if (gameOverPanel != null)
             gameOverPanel.SetActive(true);
 
+        PlayGameOverSound();
         Time.timeScale = 0f;
     }
 
-    // Game Over خاص بنفاد الأكسجين
+    // Game Over بسبب نفاد الأكسجين
     private void OxygenGameOver()
     {
         if (gameOver)
@@ -139,11 +136,17 @@ public class OxygenSystem : MonoBehaviour
         }
         else if (gameOverPanel != null)
         {
-            // رجوع آمن للبانيل القديم إذا لم نربط الجديد
             gameOverPanel.SetActive(true);
         }
 
+        PlayGameOverSound();
         Time.timeScale = 0f;
+    }
+
+    private void PlayGameOverSound()
+    {
+        if (gameOverAudio != null && !gameOverAudio.isPlaying)
+            gameOverAudio.Play();
     }
 
     private void SetHUDVisible(bool visible)

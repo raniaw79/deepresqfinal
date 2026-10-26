@@ -9,6 +9,17 @@ public class HomeButton : MonoBehaviour
 
     public void GoToHome()
     {
+        StartCoroutine(PlaySoundAndLoadHome());
+    }
+
+    private IEnumerator PlaySoundAndLoadHome()
+    {
+        if (buttonSound != null && buttonSound.clip != null)
+        {
+            buttonSound.Play();
+            yield return new WaitForSecondsRealtime(buttonSound.clip.length);
+        }
+
         Time.timeScale = 1f;
         SceneManager.LoadScene("Home");
     }

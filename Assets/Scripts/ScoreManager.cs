@@ -158,16 +158,23 @@ public class ScoreManager : MonoBehaviour
 
         levelCompletePanel.SetActive(true);
 
+        Debug.Log("Level Complete Sound: " +
+                  (levelCompleteSound == null
+                      ? "NULL"
+                      : levelCompleteSound.name));
+
         if (levelCompleteSound != null)
         {
             levelCompleteSound.Stop();
             levelCompleteSound.Play();
-            Debug.Log("Level 1 completion sound played!");
+
+            Debug.Log("Sound is playing: " +
+                      levelCompleteSound.isPlaying);
         }
         else
         {
-            Debug.LogWarning(
-                "Level 1 completion AudioSource is not assigned.");
+            Debug.LogError(
+                "Level Complete Sound is NOT assigned!");
         }
 
         Time.timeScale = 0f;

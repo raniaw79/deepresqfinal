@@ -13,9 +13,6 @@ public class TrashCounter : MonoBehaviour
     [Header("Trash Target")]
     public int trashTarget = 50;
 
-    [Header("Level Complete Sound")]
-    public AudioSource levelCompleteSound;
-
     private int trashCollected = 0;
     private bool levelCompleted = false;
 
@@ -53,19 +50,6 @@ public class TrashCounter : MonoBehaviour
         {
             levelCompletePanel.SetActive(false);
         }
-
-        if (levelCompleteSound == null)
-        {
-            Debug.LogWarning(
-                "TrashCounter: AudioSource is not assigned!"
-            );
-        }
-        else if (levelCompleteSound.clip == null)
-        {
-            Debug.LogWarning(
-                "TrashCounter: AudioClip is missing!"
-            );
-        }
     }
 
     public void AddTrash()
@@ -79,7 +63,7 @@ public class TrashCounter : MonoBehaviour
 
         UpdateCounter();
 
-        // كل 10 زبالة = 10 نقاط
+        // كل 10 قطع قمامة = 10 نقاط
         if (trashCollected % 10 == 0)
         {
             if (ScoreManager.Instance != null)
@@ -88,7 +72,7 @@ public class TrashCounter : MonoBehaviour
             }
         }
 
-        // زيادة سرعة الزبالة
+        // زيادة سرعة القمامة
         FallingTrash[] allTrash =
             FindObjectsByType<FallingTrash>(
                 FindObjectsSortMode.None
@@ -121,32 +105,12 @@ public class TrashCounter : MonoBehaviour
             );
         }
 
-        // تشغيل صوت النجاح مرة واحدة
-        if (levelCompleteSound != null &&
-            levelCompleteSound.clip != null)
-        {
-            levelCompleteSound.Stop();
-
-            levelCompleteSound.PlayOneShot(
-                levelCompleteSound.clip
-            );
-
-            Debug.Log(
-                "Level 2 success sound requested: " +
-                levelCompleteSound.clip.name
-            );
-        }
-        else
-        {
-            Debug.LogError(
-                "TrashCounter: AudioSource or AudioClip is missing!"
-            );
-        }
+        // صوت الفوز مسؤول عنه ScoreManager فقط
 
         // إيقاف حركة اللعبة
         Time.timeScale = 0f;
 
-        Debug.Log("LEVEL 2 COMPLETED!");
+        Debug.Log("LEVEL 1 COMPLETED!");
     }
 
     private void UpdateCounter()
