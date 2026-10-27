@@ -320,6 +320,7 @@ UnityEngine.Audio.ScriptableProcessorBindings::CheckProcessorExistsInternal_Inje
 UnityEngine.AudioClip::get_length_Injected
 UnityEngine.AudioSettings::StartAudioOutput
 UnityEngine.AudioSettings::StopAudioOutput
+UnityEngine.AudioSource::get_isPlaying_Injected
 UnityEngine.AudioSource::get_generatorObject_Injected
 UnityEngine.AudioSource::PlayHelper_Injected
 UnityEngine.AudioSource::PlayOneShotHelper_Injected
