@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -22,8 +23,9 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 movement;
 
-    private Vector2 touchStart;
-    private bool isDragging;
+    private readonly DragSteering steering = new DragSteering();
+    private int activeFingerId = -1;
+    private bool mouseDragging;
 
     private SpriteRenderer spriteRenderer;
     private bool isKnockedBack;
@@ -83,61 +85,17 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
-        if (isKnockedBack)
-            return;
-
         movement = Vector2.zero;
-
-        // Touch controls
-        if (Input.touchCount > 0)
+        if (Time.timeScale == 0f)
         {
-            Touch touch = Input.GetTouch(0);
-
-            if (touch.phase == TouchPhase.Began)
-            {
-                touchStart = touch.position;
-                isDragging = true;
-            }
-            else if (touch.phase == TouchPhase.Moved ||
-                     touch.phase == TouchPhase.Stationary)
-            {
-                if (isDragging)
-                {
-                    Vector2 dragDirection =
-                        touch.position - touchStart;
-
-                    if (dragDirection.magnitude > 20f)
-                        movement = dragDirection.normalized;
-                }
-            }
-            else if (touch.phase == TouchPhase.Ended ||
-                     touch.phase == TouchPhase.Canceled)
-            {
-                isDragging = false;
-                movement = Vector2.zero;
-            }
+            ResetInput();
+            return;
         }
-
-        // Mouse controls for Simulator testing
-        if (Input.GetMouseButtonDown(0))
+        ReadMovementInput();
+        if (isKnockedBack)
         {
-            touchStart = Input.mousePosition;
-            isDragging = true;
-        }
-
-        if (Input.GetMouseButton(0) && isDragging)
-        {
-            Vector2 dragDirection =
-                (Vector2)Input.mousePosition - touchStart;
-
-            if (dragDirection.magnitude > 20f)
-                movement = dragDirection.normalized;
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {
-            isDragging = false;
             movement = Vector2.zero;
+            return;
         }
 
         // Flip diver sprite
@@ -149,6 +107,60 @@ public class PlayerMovement : MonoBehaviour
                 spriteRenderer.flipX = true;
         }
     }
+
+    private void ReadMovementInput()
+    {
+        // A small screen-relative threshold gives phones and tablets the same response.
+        float threshold = Mathf.Max(1f, Mathf.Min(Screen.width, Screen.height) * 0.002f);
+        if (Input.touchCount > 0)
+        {
+            mouseDragging = false;
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                Touch touch = Input.GetTouch(i);
+                if (activeFingerId == -1 && touch.phase == TouchPhase.Began &&
+                    (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject(touch.fingerId)))
+                {
+                    activeFingerId = touch.fingerId;
+                    steering.Begin(touch.position);
+                }
+                if (touch.fingerId != activeFingerId) continue;
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                {
+                    ResetInput();
+                    return;
+                }
+                movement = steering.Move(touch.position, threshold);
+                return;
+            }
+            return;
+        }
+        if (activeFingerId != -1) ResetInput();
+
+#if UNITY_EDITOR || UNITY_STANDALONE || UNITY_WEBGL
+        // Touch and its emulated mouse events must never update the same drag twice.
+        if (Input.GetMouseButtonDown(0) &&
+            (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()))
+        {
+            mouseDragging = true;
+            steering.Begin(Input.mousePosition);
+        }
+        if (mouseDragging && Input.GetMouseButton(0))
+            movement = steering.Move(Input.mousePosition, threshold);
+        if (Input.GetMouseButtonUp(0)) ResetInput();
+#endif
+    }
+
+    private void ResetInput()
+    {
+        activeFingerId = -1;
+        mouseDragging = false;
+        movement = Vector2.zero;
+        steering.End();
+    }
+
+    private void OnDisable() { ResetInput(); }
+    private void OnApplicationFocus(bool focused) { if (!focused) ResetInput(); }
 
     void FixedUpdate()
     {
