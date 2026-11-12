@@ -38,6 +38,6 @@ public class HomeButton : MonoBehaviour
         }
 
         Time.timeScale = 1f;
-        SceneManager.LoadScene("Story");
+        IntroController.StartGame();
     }
 }

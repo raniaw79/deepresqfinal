@@ -1074,6 +1074,9 @@ UnityEngine.PlayerConnectionInternal::PollInternal
 UnityEngine.PlayerConnectionInternal::RegisterInternal_Injected
 UnityEngine.PlayerConnectionInternal::SendMessage_Injected
 UnityEngine.PlayerConnectionInternal::UnregisterInternal_Injected
+UnityEngine.PlayerPrefs::TrySetInt_Injected
+UnityEngine.PlayerPrefs::GetInt_Injected
+UnityEngine.PlayerPrefs::Save
 UnityEngine.PolygonCollider2D::set_points_Injected
 UnityEngine.Profiling.Profiler::GetRuntimeMemorySizeLong_Injected
 UnityEngine.PropertyNameUtils::PropertyNameFromString_Injected
@@ -1897,6 +1900,11 @@ UnityEngine.VFX.VFXManager::SetCameraBuffer_Injected
 UnityEngine.VFX.VFXManager::IsCameraBufferNeeded_Injected
 UnityEngine.VFX.VFXSpawnerState::Internal_Destroy
 UnityEngine.VFX.VisualEffect::get_visualEffectAsset_Injected
+UnityEngine.Video.VideoPlayer::Play_Injected
+UnityEngine.Video.VideoPlayer::Prepare_Injected
+UnityEngine.Video.VideoPlayer::set_aspectRatio_Injected
+UnityEngine.Video.VideoPlayer::set_playOnAwake_Injected
+UnityEngine.Video.VideoPlayer::set_waitForFirstFrame_Injected
 UnityEngine.XR.XRDisplaySubsystem::AddGraphicsThreadMirrorViewBlit_Injected
 UnityEngine.XR.XRDisplaySubsystem::GetMirrorViewBlitDesc_Injected
 UnityEngine.XR.XRDisplaySubsystem::Internal_TryBeginRecordingIfLateLatched_Injected
